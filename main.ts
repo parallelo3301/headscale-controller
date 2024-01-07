@@ -1,6 +1,6 @@
-import { Hono, HonoRequest } from 'https://deno.land/x/hono@v3.9.0/mod.ts'
-import { Context } from 'https://deno.land/x/hono@v3.9.0/context.ts'
-import { cors, logger, secureHeaders } from 'https://deno.land/x/hono@v3.9.0/middleware.ts'
+import { Hono, HonoRequest } from 'https://deno.land/x/hono@v3.12.0/mod.ts'
+import { Context } from 'https://deno.land/x/hono@v3.12.0/context.ts'
+import { cors, logger, secureHeaders } from 'https://deno.land/x/hono@v3.12.0/middleware.ts'
 import { Agent, fetch } from 'npm:undici@5.25.3'
 
 const log = (...args: any[]) => console.log(`[${new Date().toISOString()}]`, ...args)
