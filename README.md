@@ -27,6 +27,7 @@ Sends `SIGHUP` to the headscale service.
 Set Content-Type to `application/json`
 
 Body:
+
 ```json
 {
 	"config": "{\"acls\": ... }"
