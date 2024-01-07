@@ -42,7 +42,7 @@ error.
 
 ## Requirements / Configuration
 
-- `docker.sock` must be mounted at `/var/run/docker.sock`
+- `docker.sock` must be mounted at `/var/run/docker.sock` OR ENV `USE_SOCAT` must be set, e.g. `tcp://socat:2375`
 - ACLs must be mounted at `/app/acls.json` and be writeable
 - ENV `HEADSCALE_SERVER_URL` must be set to the URL of the headscale server
 

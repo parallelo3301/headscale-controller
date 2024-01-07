@@ -12,12 +12,16 @@ if (!headscaleServerUrl) {
 	Deno.exit(1)
 }
 
-const dispatcher = {
-	dispatcher: new Agent({
-		connect: {
-			socketPath: '/var/run/docker.sock',
-		},
-	}),
+const useSocat = ['1', 'true', 'yes'].includes(Deno.env.get('USE_SOCAT')?.toLowerCase() ?? '')
+
+const getClientConfig = () => {
+	return {
+		dispatcher: new Agent({
+			connect: {
+				...useSocat ? { path: 'tcp://socat:2375' } : { socketPath: '/var/run/docker.sock' },
+			},
+		}),
+	}
 }
 
 const app = new Hono()
@@ -50,7 +54,7 @@ app.post('/sighup', async (c: Context) => {
 
 	try {
 		const resp = await fetch(`http://localhost/containers/json?filters=${filter}`, {
-			...dispatcher,
+			...getClientConfig(),
 		})
 
 		const containers = await resp.json()
@@ -62,7 +66,7 @@ app.post('/sighup', async (c: Context) => {
 
 		await fetch(`http://localhost/containers/${containerId}/kill?signal=SIGHUP`, {
 			method: 'POST',
-			...dispatcher,
+			...getClientConfig(),
 		})
 
 		return c.json({ data: 'ok' })
@@ -81,7 +85,7 @@ app.post('/update-acls', async (c: Context) => {
 
 	try {
 		const resp = await fetch(`http://localhost/containers/json?filters=${filter}`, {
-			...dispatcher,
+			...getClientConfig(),
 		})
 
 		const containers = await resp.json()
@@ -100,7 +104,7 @@ app.post('/update-acls', async (c: Context) => {
 		// it's the same behavior as the /sighup right now
 		await fetch(`http://localhost/containers/${containerId}/kill?signal=SIGHUP`, {
 			method: 'POST',
-			...dispatcher,
+			...getClientConfig(),
 		})
 
 		// TODO if update failed, revert the /app/acls.json to the previous version and return error
