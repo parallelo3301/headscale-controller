@@ -13,14 +13,15 @@ if (!headscaleServerUrl) {
 }
 
 const useSocat = ['1', 'true', 'yes'].includes(Deno.env.get('USE_SOCAT')?.toLowerCase() ?? '')
+const dockerUrl = useSocat ? 'http://socat:2375' : 'http://localhost'
 
 const getClientConfig = () => {
+	if (useSocat) {
+		return {}
+	}
+
 	return {
-		dispatcher: new Agent({
-			connect: {
-				...useSocat ? { path: 'tcp://socat:2375' } : { socketPath: '/var/run/docker.sock' },
-			},
-		}),
+		dispatcher: new Agent({ connect: { socketPath: '/var/run/docker.sock' } }),
 	}
 }
 
@@ -53,9 +54,7 @@ app.post('/sighup', async (c: Context) => {
 	const filter = encodeURIComponent(JSON.stringify({ ancestor: ['headscale/headscale'] }))
 
 	try {
-		const resp = await fetch(`http://localhost/containers/json?filters=${filter}`, {
-			...getClientConfig(),
-		})
+		const resp = await fetch(`${dockerUrl}/containers/json?filters=${filter}`, { ...getClientConfig() })
 
 		const containers = await resp.json()
 		if (containers?.length !== 1) {
@@ -64,7 +63,7 @@ app.post('/sighup', async (c: Context) => {
 
 		const containerId = containers[0].Id
 
-		await fetch(`http://localhost/containers/${containerId}/kill?signal=SIGHUP`, {
+		await fetch(`${dockerUrl}/containers/${containerId}/kill?signal=SIGHUP`, {
 			method: 'POST',
 			...getClientConfig(),
 		})
@@ -84,9 +83,7 @@ app.post('/update-acls', async (c: Context) => {
 	const filter = encodeURIComponent(JSON.stringify({ ancestor: ['headscale/headscale'] }))
 
 	try {
-		const resp = await fetch(`http://localhost/containers/json?filters=${filter}`, {
-			...getClientConfig(),
-		})
+		const resp = await fetch(`${dockerUrl}/containers/json?filters=${filter}`, { ...getClientConfig() })
 
 		const containers = await resp.json()
 		if (containers?.length !== 1) {
@@ -102,7 +99,7 @@ app.post('/update-acls', async (c: Context) => {
 
 		// TODO: check for the result of it, as the update may fail.. probably check logs of the container?
 		// it's the same behavior as the /sighup right now
-		await fetch(`http://localhost/containers/${containerId}/kill?signal=SIGHUP`, {
+		await fetch(`${dockerUrl}/containers/${containerId}/kill?signal=SIGHUP`, {
 			method: 'POST',
 			...getClientConfig(),
 		})
