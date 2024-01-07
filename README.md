@@ -24,8 +24,9 @@ Sends `SIGHUP` to the headscale service.
 
 ### POST /update-acls
 
-Set Content-Type to `application/json` Body:
+Set Content-Type to `application/json`
 
+Body:
 ```json
 {
 	"config": "{\"acls\": ... }"
