@@ -1,6 +1,10 @@
 # Headscale controller
 
+(part of [headscale-stack](https://github.com/parallelo3301/headscale-stack))
+
 Uses `docker.sock` to manage ACLs / reload the service gracefully.
+
+## About
 
 Provides API consumed by
 [headscale-management](https://github.com/parallelo3301/headscale-management).
